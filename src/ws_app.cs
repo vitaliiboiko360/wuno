@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System.Web;
 
+using WorkServiceFile;
+
 namespace WsAppFile;
 
 class WsApp
@@ -10,7 +12,7 @@ class WsApp
     using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
     var socketFinishedTcs = new TaskCompletionSource<object>();
 
-    BackgroundSocketProcessor.AddSocket(webSocket, socketFinishedTcs);
+    BgWebsocketProcessorService.AddSocket(webSocket, socketFinishedTcs);
 
     await socketFinishedTcs.Task;
   }
