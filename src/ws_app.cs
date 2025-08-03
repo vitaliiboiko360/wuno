@@ -6,13 +6,22 @@ namespace WsAppFile;
 
 class WsApp
 {
+    readonly IWsConnections _wsConnections;
+    
+  public WsApp(IWsConnections wsConnections)
+  {
+    _wsConnections = wsConnections;
+  }
   public async void Main(HttpContext context)
   {
-    using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
     var socketFinishedTcs = new TaskCompletionSource<object>();
 
-    // BgWebsocketProcessorService.AddSocket(webSocket, socketFinishedTcs);
-
+    if (_wsConnections != null)
+    {
+      
+    _wsConnections.AddSocket(webSocket);
+    }
     await socketFinishedTcs.Task;
   }
 }

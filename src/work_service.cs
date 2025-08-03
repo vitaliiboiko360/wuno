@@ -49,23 +49,16 @@ public class BgWebsocketProcessorService : BackgroundService
 
   public IServiceProvider Services { get; }
 
-  private TaskCompletionSource<object> _socketFinishedTcs;
-
-  public void AddSocket(WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
-  {
-    _socketFinishedTcs = socketFinishedTcs;
-  }
-
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("Consume Scoped Service Hosted Service running.");
+    _logger.LogInformation("BgWebsocketProcessorService is running. ExecuteAsync");
 
     await DoWork(stoppingToken);
   }
 
   private async Task DoWork(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("Consume Scoped Service Hosted Service is working.");
+    _logger.LogInformation("BgWebsocketProcessorService is working. DoWork");
 
     using (var scope = Services.CreateScope())
     {
@@ -78,7 +71,7 @@ public class BgWebsocketProcessorService : BackgroundService
 
   public override async Task StopAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("Consume Scoped Service Hosted Service is stopping.");
+    _logger.LogInformation("BgWebsocketProcessorService is stopping. StopAsync");
 
     await base.StopAsync(stoppingToken);
   }
