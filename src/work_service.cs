@@ -29,7 +29,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
         "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
         stateCounter
       );
-      await Task.Delay(5000, stoppingToken);
+      await Task.Delay(50000, stoppingToken);
     }
   }
 }
