@@ -25,7 +25,10 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
     while (!stoppingToken.IsCancellationRequested)
     {
       stateCounter++;
-      _logger.LogInformation("DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",stateCounter);
+      _logger.LogInformation(
+        "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
+        stateCounter
+      );
       await Task.Delay(5000, stoppingToken);
     }
   }

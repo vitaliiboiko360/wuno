@@ -13,16 +13,11 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
 
   public BackgroundTaskQueue(int capacity)
   {
-    var options = new BoundedChannelOptions(capacity)
-    {
-      FullMode = BoundedChannelFullMode.Wait
-    };
+    var options = new BoundedChannelOptions(capacity) { FullMode = BoundedChannelFullMode.Wait };
     _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
   }
 
-  public async ValueTask QueueBackgroundWorkItemAsync(
-    Func<CancellationToken, ValueTask> workItem
-  )
+  public async ValueTask QueueBackgroundWorkItemAsync(Func<CancellationToken, ValueTask> workItem)
   {
     if (workItem == null)
     {
@@ -41,7 +36,6 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
     return workItem;
   }
 }
-
 
 public class QueuedService : BackgroundService
 {
@@ -68,7 +62,6 @@ public class QueuedService : BackgroundService
     {
       var workItem = await TaskQueue.DequeueAsync(stoppingToken);
 
-
       try
       {
         await workItem(stoppingToken);
@@ -87,14 +80,17 @@ public class QueuedService : BackgroundService
   }
 }
 
-
 public class MonitorLoop
 {
   private readonly IBackgroundTaskQueue _taskQueue;
   private readonly ILogger _logger;
   private readonly CancellationToken _cancellationToken;
 
-  public MonitorLoop(IBackgroundTaskQueue taskQueue, ILogger<MonitorLoop> logger, IHostApplicationLifetime applicationLifetime)
+  public MonitorLoop(
+    IBackgroundTaskQueue taskQueue,
+    ILogger<MonitorLoop> logger,
+    IHostApplicationLifetime applicationLifetime
+  )
   {
     _taskQueue = taskQueue;
     _logger = logger;
