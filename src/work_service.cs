@@ -5,21 +5,28 @@ using Microsoft.Extensions.Logging;
 
 namespace WorkServiceFile;
 
-internal interface IScopedWebsocketProcessor
+internal interface IWsProcessorScopedSrv
 {
   Task DoWork(CancellationToken stoppingToken);
 }
 
-internal class ScopedWebsocketProcessor : IScopedWebsocketProcessor
+internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
 {
   private int stateCounter = 0;
+  private readonly ILogger _logger;
+
+  public WsProcessorScopedSrv(ILogger<WsProcessorScopedSrv> logger)
+  {
+    _logger = logger;
+  }
 
   public async Task DoWork(CancellationToken stoppingToken)
   {
     while (!stoppingToken.IsCancellationRequested)
     {
       stateCounter++;
-      await Task.Delay(10000, stoppingToken);
+      _logger.LogInformation("DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",stateCounter);
+      await Task.Delay(5000, stoppingToken);
     }
   }
 }
@@ -60,7 +67,7 @@ public class BgWebsocketProcessorService : BackgroundService
     using (var scope = Services.CreateScope())
     {
       var scopedProcessingService =
-        scope.ServiceProvider.GetRequiredService<ScopedWebsocketProcessor>();
+        scope.ServiceProvider.GetRequiredService<WsProcessorScopedSrv>();
 
       await scopedProcessingService.DoWork(stoppingToken);
     }
