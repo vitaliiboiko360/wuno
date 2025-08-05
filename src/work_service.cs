@@ -14,10 +14,12 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
 {
   private int stateCounter = 0;
   private readonly ILogger _logger;
+  private IWsConnections _wsConnections;
 
-  public WsProcessorScopedSrv(ILogger<WsProcessorScopedSrv> logger)
+  public WsProcessorScopedSrv(ILogger<WsProcessorScopedSrv> logger, IWsConnections wsConnections)
   {
     _logger = logger;
+    _wsConnections = wsConnections;
   }
 
   public async Task DoWork(CancellationToken stoppingToken)
@@ -29,6 +31,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
         "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
         stateCounter
       );
+      _logger.LogInformation("WS CONNECTIONS ==== {}", _wsConnections.Size());
       await Task.Delay(50000, stoppingToken);
     }
   }

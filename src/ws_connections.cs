@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 public interface IWsConnections
 {
   public void AddSocket(WebSocket webSocket);
+  public int Size();
 }
 
 public class WsConnections : IWsConnections
