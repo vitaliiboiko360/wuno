@@ -8,6 +8,7 @@ public interface IWsConnections
 public class WsConnections : IWsConnections
 {
   List<WebSocket> _activeWebSockets = new List<WebSocket>();
+
   public void AddSocket(WebSocket webSocket)
   {
     _activeWebSockets.Add(webSocket);

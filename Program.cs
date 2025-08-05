@@ -14,9 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 // await host.RunAsync();
 
 builder.Services.AddActivatedSingleton<IWsConnections, WsConnections>();
-  builder.Services.AddTransient<WsProcessorScopedSrv>();
-  builder.Services.AddScoped<IWsProcessorScopedSrv, WsProcessorScopedSrv>();
-  builder.Services.AddHostedService<BgWebsocketProcessorService>();
+builder.Services.AddTransient<WsProcessorScopedSrv>();
+builder.Services.AddScoped<IWsProcessorScopedSrv, WsProcessorScopedSrv>();
+builder.Services.AddHostedService<BgWebsocketProcessorService>();
 
 var app = builder.Build();
 
