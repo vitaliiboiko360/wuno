@@ -22,12 +22,10 @@ class WsApp
 
     if (_wsConnections != null)
     {
-      _wsConnections.AddSocket(webSocket);
+      _wsConnections.AddSocket(webSocket, socketFinishedTcs);
     }
 
-    
     _logger.LogInformation("before awaiting task for req");
-
     await socketFinishedTcs.Task;
 
     _logger.LogInformation("request is done, websocket might be gone already");
