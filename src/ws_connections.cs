@@ -4,6 +4,8 @@ public interface IWsConnections
 {
   public void AddSocket(WebSocket webSocket);
   public int Size();
+
+  public List<WebSocket> GetConnections();
 }
 
 public class WsConnections : IWsConnections
@@ -18,5 +20,10 @@ public class WsConnections : IWsConnections
   public int Size()
   {
     return _activeWebSockets.Count;
+  }
+
+  public List<WebSocket> GetConnections()
+  {
+    return _activeWebSockets;
   }
 }

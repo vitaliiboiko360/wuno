@@ -10,7 +10,8 @@ builder.Services.AddHostedService<BgWebsocketProcessorService>();
 
 var app = builder.Build();
 
-var wsApp = new WsApp(app.Services.GetRequiredService<IWsConnections>());
+var wsApp = new WsApp(app.Services.GetRequiredService<ILogger<WsAppFile.WsApp>>(),app.Services.GetRequiredService<IWsConnections>());
+
 app.UseWebSockets();
 
 app.MapGet("/", () => "Hello World!");

@@ -1,5 +1,6 @@
 using System;
 using System.Net.WebSockets;
+using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,21 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
         stateCounter
       );
       _logger.LogInformation("WS CONNECTIONS ==== {}", _wsConnections.Size());
-      await Task.Delay(50000, stoppingToken);
+      for (var i = 0; i < _wsConnections.Size(); ++i)
+      {
+        var ws = _wsConnections.GetConnections()[i];
+        if (ws.State == WebSocketState.Open)
+        {
+          _logger.LogInformation($"sending to {i}");
+          await ws.SendAsync(
+            Encoding.ASCII.GetBytes($"{i}_${stateCounter}"),
+            WebSocketMessageType.Text,
+            true,
+            stoppingToken
+          );
+        }
+      }
+      await Task.Delay(5000, stoppingToken);
     }
   }
 }
