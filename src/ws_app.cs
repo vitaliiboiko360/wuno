@@ -18,15 +18,35 @@ class WsApp
   public async void Main(HttpContext context)
   {
     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-    var socketFinishedTcs = new TaskCompletionSource<object>();
+    // var socketFinishedTcs = new TaskCompletionSource<object>();
+
+_logger.LogInformation("we have ready websocket");
+    var buffer = new byte[1024 * 4];
+    var receiveResult = await webSocket.ReceiveAsync(
+        new ArraySegment<byte>(buffer), CancellationToken.None);
+        
+        _logger.LogInformation("before while loop");
+
+    while (!receiveResult.CloseStatus.HasValue)
+    {
+      await webSocket.SendAsync(
+          new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+          receiveResult.MessageType,
+          receiveResult.EndOfMessage,
+          CancellationToken.None);
+
+      receiveResult = await webSocket.ReceiveAsync(
+          new ArraySegment<byte>(buffer), CancellationToken.None);
+    }
+    return;
 
     if (_wsConnections != null)
     {
-      _wsConnections.AddSocket(webSocket, socketFinishedTcs);
+      _wsConnections.AddSocket(webSocket);
     }
 
     _logger.LogInformation("before awaiting task for req");
-    await socketFinishedTcs.Task;
+    // await socketFinishedTcs.Task;
 
     _logger.LogInformation("request is done, websocket might be gone already");
   }

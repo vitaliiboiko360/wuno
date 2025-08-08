@@ -36,8 +36,17 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
         var ws = _wsConnections.GetConnections()[i];
+        _logger.LogInformation($"{i} ws CloseStatus = {ws.CloseStatusDescription}");
+        _logger.LogInformation($"{i} ws CloseStatus = {ws.State}");
         if (ws.State == WebSocketState.Open)
         {
+          var buffer = new byte[256];
+          var result = await ws.ReceiveAsync(buffer, CancellationToken.None);
+          if (result.MessageType == WebSocketMessageType.Close)
+          {
+            _logger.LogInformation($"for {i} detect connection is closed\n");
+            continue;
+          }
           _logger.LogInformation($"sending to {i}");
           await ws.SendAsync(
             Encoding.ASCII.GetBytes($"{i}_${stateCounter}"),
