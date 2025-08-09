@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using WorkServiceFile;
@@ -15,39 +17,14 @@ class WsApp
     _logger = logger;
   }
 
-  public async void Main(HttpContext context)
+  public async void Main(HttpContext context, TaskCompletionSource<object> tcs)
   {
     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-    // var socketFinishedTcs = new TaskCompletionSource<object>();
-
-_logger.LogInformation("we have ready websocket");
-    var buffer = new byte[1024 * 4];
-    var receiveResult = await webSocket.ReceiveAsync(
-        new ArraySegment<byte>(buffer), CancellationToken.None);
-        
-        _logger.LogInformation("before while loop");
-
-    while (!receiveResult.CloseStatus.HasValue)
-    {
-      await webSocket.SendAsync(
-          new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-          receiveResult.MessageType,
-          receiveResult.EndOfMessage,
-          CancellationToken.None);
-
-      receiveResult = await webSocket.ReceiveAsync(
-          new ArraySegment<byte>(buffer), CancellationToken.None);
-    }
-    return;
-
+    _logger.LogInformation("we have ready websocket");
     if (_wsConnections != null)
     {
-      _wsConnections.AddSocket(webSocket);
+      _wsConnections.AddSocket(webSocket, tcs);
     }
-
-    _logger.LogInformation("before awaiting task for req");
-    // await socketFinishedTcs.Task;
-
     _logger.LogInformation("request is done, websocket might be gone already");
   }
 }

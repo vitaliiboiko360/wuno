@@ -2,7 +2,7 @@ using System.Net.WebSockets;
 
 public interface IWsConnections
 {
-  public void AddSocket(WebSocket webSocket);
+  public void AddSocket(WebSocket webSocket, TaskCompletionSource<object> tcs);
   public int Size();
 
   public List<WebSocket> GetConnections();
@@ -11,10 +11,12 @@ public interface IWsConnections
 public class WsConnections : IWsConnections
 {
   List<WebSocket> _activeWebSockets = new List<WebSocket>();
+  List<TaskCompletionSource<object>> _tcsList = new List<TaskCompletionSource<object>>();
 
-  public void AddSocket(WebSocket webSocket)
+  public void AddSocket(WebSocket webSocket, TaskCompletionSource<object> tcs)
   {
     _activeWebSockets.Add(webSocket);
+    _tcsList.Add(tcs);
   }
 
   public int Size()

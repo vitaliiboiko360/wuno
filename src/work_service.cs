@@ -28,11 +28,11 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
     while (!stoppingToken.IsCancellationRequested)
     {
       stateCounter++;
-      _logger.LogInformation(
-        "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
-        stateCounter
-      );
-      _logger.LogInformation("WS CONNECTIONS ==== {}", _wsConnections.Size());
+      // _logger.LogInformation(
+      //   "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
+      //   stateCounter
+      // );
+      // _logger.LogInformation("WS CONNECTIONS ==== {}", _wsConnections.Size());
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
         var ws = _wsConnections.GetConnections()[i];
