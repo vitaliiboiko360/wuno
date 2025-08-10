@@ -11,11 +11,23 @@ internal interface IWsProcessorScopedSrv
   Task DoWork(CancellationToken stoppingToken);
 }
 
+public struct WsMessage
+{
+  public WsMessage()
+  {
+    buffer = new byte[256];
+  }
+
+  public byte[] buffer;
+}
+
 internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
 {
   private int stateCounter = 0;
   private readonly ILogger _logger;
   private IWsConnections _wsConnections;
+
+  private List<WsMessage> _wsMessages = new List<WsMessage>();
 
   public WsProcessorScopedSrv(ILogger<WsProcessorScopedSrv> logger, IWsConnections wsConnections)
   {
@@ -28,17 +40,20 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
     int wsId
   )
   {
+    Console.WriteLine($"now the wsId is == ${wsId}");
     try
     {
       if (wsResult.Result.MessageType == WebSocketMessageType.Close)
       {
         Console.WriteLine($"for ws ID= {wsId} detect connection is closed\n");
+        return;
       }
-      Console.WriteLine($"ws w ID=${wsId} recieved: {wsResult.Result.ToString()}");
+      string msgRecived = Encoding.ASCII.GetString(_wsMessages[wsId].buffer);
+      Console.WriteLine($"ws w ID=${wsId} recieved: {msgRecived}");
     }
-    catch
+    catch (Exception e)
     {
-      Console.WriteLine("Exception!!!! from onMessageRecive handler");
+      Console.WriteLine($"Exception!!!! wsId={wsId} from onMessageRecive handler {e.Message}");
     }
   }
 
@@ -54,14 +69,21 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
       // Console.WriteLine("WS CONNECTIONS ==== {}", _wsConnections.Size());
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
+        // Console.WriteLine($"i==={i}");
         var ws = _wsConnections.GetConnections()[i];
         // Console.WriteLine($"{i} ws CloseStatus = {ws.CloseStatusDescription}");
         // Console.WriteLine($"{i} ws CloseStatus = {ws.State}");
         if (ws.State == WebSocketState.Open)
         {
-          var buffer = new byte[256];
-          var task = ws.ReceiveAsync(buffer, CancellationToken.None);
-          task.ContinueWith((wsRes) => onMessageRecive(wsRes, i));
+          if (i >= _wsMessages.Count)
+          {
+            Console.WriteLine($"adding message buffer for i= {i}");
+            _wsMessages.Add(new WsMessage());
+          }
+
+          var task = ws.ReceiveAsync(_wsMessages[i].buffer, CancellationToken.None);
+          int copyIndex = i;
+          task.ContinueWith((wsRes) => onMessageRecive(wsRes, copyIndex));
           Console.WriteLine($"sending to {i}");
           await ws.SendAsync(
             Encoding.ASCII.GetBytes($"{i}_${stateCounter}"),
