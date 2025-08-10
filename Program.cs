@@ -16,6 +16,18 @@ builder.Services.AddHostedService<BgWebsocketProcessorService>();
 //     });
 // });
 
+builder.Logging.AddSimpleConsole(options =>
+{
+  options.IncludeScopes = false;
+  options.SingleLine = true;
+});
+
+builder.Services.AddLogging(logging =>
+{
+  logging.ClearProviders();
+  logging.AddConsole();
+});
+
 var app = builder.Build();
 
 var wsApp = new WsApp(
@@ -30,22 +42,20 @@ app.MapGet("/", () => "Hello World!");
 app.Use(
   async (context, next) =>
   {
-    if (context.Request.Path == "/ws")
+    if (context.Request.Path != "/ws")
+    {
+      await next(context);
+      return;
+    }
+    if (context.WebSockets.IsWebSocketRequest)
     {
       var tcs = new TaskCompletionSource<object>();
-      if (context.WebSockets.IsWebSocketRequest)
-      {
-        wsApp.Main(context, tcs);
-        await tcs.Task;
-      }
-      else
-      {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-      }
+      wsApp.Main(context, tcs);
+      await tcs.Task;
     }
     else
     {
-      await next(context);
+      context.Response.StatusCode = StatusCodes.Status400BadRequest;
     }
   }
 );

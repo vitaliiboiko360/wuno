@@ -20,11 +20,10 @@ class WsApp
   public async void Main(HttpContext context, TaskCompletionSource<object> tcs)
   {
     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-    _logger.LogInformation("we have ready websocket");
-    if (_wsConnections != null)
-    {
-      _wsConnections.AddSocket(webSocket, tcs);
-    }
-    _logger.LogInformation("request is done, websocket might be gone already");
+    Console.WriteLine("we have ready websocket");
+
+    _wsConnections.AddSocket(webSocket, tcs);
+
+    Console.WriteLine("request is done, task is awaited, websocket might be passed already");
   }
 }

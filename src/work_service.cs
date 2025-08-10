@@ -23,31 +23,46 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
     _wsConnections = wsConnections;
   }
 
+  private void onMessageRecive(
+    System.Threading.Tasks.Task<System.Net.WebSockets.WebSocketReceiveResult> wsResult,
+    int wsId
+  )
+  {
+    try
+    {
+      if (wsResult.Result.MessageType == WebSocketMessageType.Close)
+      {
+        Console.WriteLine($"for ws ID= {wsId} detect connection is closed\n");
+      }
+      Console.WriteLine($"ws w ID=${wsId} recieved: {wsResult.Result.ToString()}");
+    }
+    catch
+    {
+      Console.WriteLine("Exception!!!! from onMessageRecive handler");
+    }
+  }
+
   public async Task DoWork(CancellationToken stoppingToken)
   {
     while (!stoppingToken.IsCancellationRequested)
     {
       stateCounter++;
-      // _logger.LogInformation(
+      // Console.WriteLine(
       //   "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
       //   stateCounter
       // );
-      // _logger.LogInformation("WS CONNECTIONS ==== {}", _wsConnections.Size());
+      // Console.WriteLine("WS CONNECTIONS ==== {}", _wsConnections.Size());
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
         var ws = _wsConnections.GetConnections()[i];
-        _logger.LogInformation($"{i} ws CloseStatus = {ws.CloseStatusDescription}");
-        _logger.LogInformation($"{i} ws CloseStatus = {ws.State}");
+        // Console.WriteLine($"{i} ws CloseStatus = {ws.CloseStatusDescription}");
+        // Console.WriteLine($"{i} ws CloseStatus = {ws.State}");
         if (ws.State == WebSocketState.Open)
         {
           var buffer = new byte[256];
-          var result = await ws.ReceiveAsync(buffer, CancellationToken.None);
-          if (result.MessageType == WebSocketMessageType.Close)
-          {
-            _logger.LogInformation($"for {i} detect connection is closed\n");
-            continue;
-          }
-          _logger.LogInformation($"sending to {i}");
+          var task = ws.ReceiveAsync(buffer, CancellationToken.None);
+          task.ContinueWith((wsRes) => onMessageRecive(wsRes, i));
+          Console.WriteLine($"sending to {i}");
           await ws.SendAsync(
             Encoding.ASCII.GetBytes($"{i}_${stateCounter}"),
             WebSocketMessageType.Text,
@@ -78,14 +93,14 @@ public class BgWebsocketProcessorService : BackgroundService
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("BgWebsocketProcessorService is running. ExecuteAsync");
+    Console.WriteLine("BgWebsocketProcessorService is running. ExecuteAsync");
 
     await DoWork(stoppingToken);
   }
 
   private async Task DoWork(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("BgWebsocketProcessorService is working. DoWork");
+    Console.WriteLine("BgWebsocketProcessorService is working. DoWork");
 
     using (var scope = Services.CreateScope())
     {
@@ -98,7 +113,7 @@ public class BgWebsocketProcessorService : BackgroundService
 
   public override async Task StopAsync(CancellationToken stoppingToken)
   {
-    _logger.LogInformation("BgWebsocketProcessorService is stopping. StopAsync");
+    Console.WriteLine("BgWebsocketProcessorService is stopping. StopAsync");
 
     await base.StopAsync(stoppingToken);
   }
