@@ -15,7 +15,7 @@ public struct WsMessage
 {
   public WsMessage()
   {
-    buffer = new byte[256];
+    buffer = new byte[32];
   }
 
   public byte[] buffer;
@@ -49,7 +49,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
         return;
       }
       string msgRecived = Encoding.ASCII.GetString(_wsMessages[wsId].buffer);
-      Console.WriteLine($"ws w ID=${wsId} recieved: {msgRecived}");
+      Console.WriteLine($"ws w ID={wsId} recieved: {msgRecived}");
     }
     catch (Exception e)
     {
@@ -85,9 +85,18 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
           int copyIndex = i;
           task.ContinueWith((wsRes) => onMessageRecive(wsRes, copyIndex));
           Console.WriteLine($"sending to {i}");
-          await ws.SendAsync(
-            Encoding.ASCII.GetBytes($"{i}_${stateCounter}"),
-            WebSocketMessageType.Text,
+          var prev = Encoding.ASCII.GetBytes($"{i}_${stateCounter}");
+          var bufferToSend = new byte[8];
+          Random rand = new Random();
+          bufferToSend[0] = (byte)rand.NextInt64(255);
+          bufferToSend[1] = (byte)rand.NextInt64(255);
+          bufferToSend[2] = (byte)rand.NextInt64(255);
+          bufferToSend[3] = (byte)rand.NextInt64(255);
+          bufferToSend[4] = (byte)rand.NextInt64(255);
+          bufferToSend[5] = (byte)rand.NextInt64(255);
+          ws.SendAsync(
+            bufferToSend,
+            WebSocketMessageType.Binary,
             true,
             stoppingToken
           );
