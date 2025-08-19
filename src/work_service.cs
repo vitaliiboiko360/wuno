@@ -48,6 +48,11 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
   {
     Console.WriteLine($"onMessageRecieve for ID ==: {wsId}");
     Console.WriteLine($"wsResult.IsCompleted ==: {wsResult.IsCompleted}");
+    Console.WriteLine($"wsResult.IsCanceled ==: {wsResult.IsCanceled}");
+    if (wsResult.IsCanceled)
+    {
+      return;
+    }
     try
     {
       if (wsResult.Result.MessageType == WebSocketMessageType.Close)
