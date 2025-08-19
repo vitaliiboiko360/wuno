@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TableGameManagerFile;
 
 namespace WorkServiceFile;
 
@@ -26,34 +27,55 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
   private int stateCounter = 0;
   private readonly ILogger _logger;
   private IWsConnections _wsConnections;
-
+  private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
 
-  public WsProcessorScopedSrv(ILogger<WsProcessorScopedSrv> logger, IWsConnections wsConnections)
+  public WsProcessorScopedSrv(
+    ILogger<WsProcessorScopedSrv> logger,
+    IWsConnections wsConnections,
+    ITableGameManager tableGameManager
+  )
   {
     _logger = logger;
     _wsConnections = wsConnections;
+    _tableGameManager = tableGameManager;
   }
 
-  private void onMessageRecive(
+  private void onMessageRecieve(
     System.Threading.Tasks.Task<System.Net.WebSockets.WebSocketReceiveResult> wsResult,
     int wsId
   )
   {
-    Console.WriteLine($"now the wsId is == ${wsId}");
+    Console.WriteLine($"onMessageRecieve for ID ==: {wsId}");
+    Console.WriteLine($"wsResult.IsCompleted ==: {wsResult.IsCompleted}");
     try
     {
       if (wsResult.Result.MessageType == WebSocketMessageType.Close)
       {
-        Console.WriteLine($"for ws ID= {wsId} detect connection is closed\n");
-        return;
+        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is CLOSED\n");
       }
-      string msgRecived = Encoding.ASCII.GetString(_wsMessages[wsId].buffer);
-      Console.WriteLine($"ws w ID={wsId} recieved: {msgRecived}");
+      if (wsResult.Result.MessageType == WebSocketMessageType.Text)
+      {
+        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is TEXT\n");
+      }
+      if (wsResult.Result.MessageType == WebSocketMessageType.Binary)
+      {
+        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is BINARY\n");
+      }
+      try
+      {
+        string msgRecived = Encoding.ASCII.GetString(_wsMessages[wsId].buffer);
+        Console.WriteLine($"WS ID={wsId} recieved: {msgRecived}");
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine($"Encoding.ASCII.GetString Exception For wsId={wsId} === {e.Message}");
+      }
+      _tableGameManager.ProcessMessage(_wsMessages[wsId]);
     }
     catch (Exception e)
     {
-      Console.WriteLine($"Exception!!!! wsId={wsId} from onMessageRecive handler {e.Message}");
+      Console.WriteLine($"WebSocketReceiveResult.Result Exception For wsId={wsId} === {e.Message}");
     }
   }
 
@@ -62,17 +84,9 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
     while (!stoppingToken.IsCancellationRequested)
     {
       stateCounter++;
-      // Console.WriteLine(
-      //   "DO WORK FROM SCOPED SERVICE; CHANGED STATE BEFORE DELAY = {}",
-      //   stateCounter
-      // );
-      // Console.WriteLine("WS CONNECTIONS ==== {}", _wsConnections.Size());
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
-        // Console.WriteLine($"i==={i}");
         var ws = _wsConnections.GetConnections()[i];
-        // Console.WriteLine($"{i} ws CloseStatus = {ws.CloseStatusDescription}");
-        // Console.WriteLine($"{i} ws CloseStatus = {ws.State}");
         if (ws.State == WebSocketState.Open)
         {
           if (i >= _wsMessages.Count)
@@ -83,7 +97,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
 
           var task = ws.ReceiveAsync(_wsMessages[i].buffer, CancellationToken.None);
           int copyIndex = i;
-          task.ContinueWith((wsRes) => onMessageRecive(wsRes, copyIndex));
+          task.ContinueWith((wsRes) => onMessageRecieve(wsRes, copyIndex));
           Console.WriteLine($"sending to {i}");
           var prev = Encoding.ASCII.GetBytes($"{i}_${stateCounter}");
           var bufferToSend = new byte[8];
@@ -94,12 +108,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
           bufferToSend[3] = (byte)rand.NextInt64(255);
           bufferToSend[4] = (byte)rand.NextInt64(255);
           bufferToSend[5] = (byte)rand.NextInt64(255);
-          ws.SendAsync(
-            bufferToSend,
-            WebSocketMessageType.Binary,
-            true,
-            stoppingToken
-          );
+          ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, stoppingToken);
         }
       }
       await Task.Delay(5000, stoppingToken);
