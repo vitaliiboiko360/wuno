@@ -1,3 +1,4 @@
+using TableGameManagerFile;
 using WorkServiceFile;
 using WsAppFile;
 
@@ -7,14 +8,7 @@ builder.Services.AddActivatedSingleton<IWsConnections, WsConnections>();
 builder.Services.AddTransient<WsProcessorScopedSrv>();
 builder.Services.AddScoped<IWsProcessorScopedSrv, WsProcessorScopedSrv>();
 builder.Services.AddHostedService<BgWebsocketProcessorService>();
-
-// builder.WebHost.ConfigureKestrel(serverOptions =>
-// {
-//     serverOptions.ListenAnyIP(7192, listenOptions =>
-//     {
-//         listenOptions.UseHttps();
-//     });
-// });
+builder.Services.AddScoped<ITableGameManager, TableGameManager>();
 
 builder.Logging.AddSimpleConsole(options =>
 {
