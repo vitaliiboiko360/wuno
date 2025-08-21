@@ -14,8 +14,11 @@ internal interface IWsProcessorScopedSrv
 
 public struct WsMessage
 {
-  public WsMessage()
+  WebSocket ws;
+
+  public WsMessage(WebSocket associatedWsConnection)
   {
+    ws = associatedWsConnection;
     buffer = new byte[32];
   }
 
@@ -97,7 +100,7 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
           if (i >= _wsMessages.Count)
           {
             Console.WriteLine($"adding message buffer for i= {i}");
-            _wsMessages.Add(new WsMessage());
+            _wsMessages.Add(new WsMessage(ws));
           }
 
           var task = ws.ReceiveAsync(_wsMessages[i].buffer, CancellationToken.None);
