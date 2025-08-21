@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TableGameManagerFile;
+using TableStateFile;
 
 namespace WorkServiceFile;
 
@@ -33,15 +34,19 @@ internal class WsProcessorScopedSrv : IWsProcessorScopedSrv
   private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
 
+  private ITableState _tableState;
+
   public WsProcessorScopedSrv(
     ILogger<WsProcessorScopedSrv> logger,
     IWsConnections wsConnections,
-    ITableGameManager tableGameManager
+    ITableGameManager tableGameManager,
+    ITableState tableState
   )
   {
     _logger = logger;
     _wsConnections = wsConnections;
     _tableGameManager = tableGameManager;
+    _tableState = tableState;
   }
 
   private void onMessageRecieve(
