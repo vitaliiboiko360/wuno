@@ -1,4 +1,5 @@
 using TableGameManagerFile;
+using TableStateFile;
 using WorkServiceFile;
 using WsAppFile;
 
@@ -9,6 +10,7 @@ builder.Services.AddTransient<WsProcessorScopedSrv>();
 builder.Services.AddScoped<IWsProcessorScopedSrv, WsProcessorScopedSrv>();
 builder.Services.AddHostedService<BgWebsocketProcessorService>();
 builder.Services.AddScoped<ITableGameManager, TableGameManager>();
+builder.Services.AddScoped<ITableState, TableState>();
 
 builder.Logging.AddSimpleConsole(options =>
 {
