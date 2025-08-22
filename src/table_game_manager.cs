@@ -1,7 +1,7 @@
 using ManagerCommandsFile;
 using SeatsFile;
 using TableStateFile;
-using WorkServiceFile;
+using WebsocketProcessorFile;
 
 namespace TableGameManagerFile;
 

@@ -6,8 +6,8 @@ using WsAppFile;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddActivatedSingleton<IWsConnections, WsConnections>();
-builder.Services.AddTransient<WsProcessorScopedSrv>();
-builder.Services.AddScoped<IWsProcessorScopedSrv, WsProcessorScopedSrv>();
+builder.Services.AddTransient<WebsocketProcessor>();
+builder.Services.AddScoped<IWebsocketProcessor, WebsocketProcessor>();
 builder.Services.AddHostedService<BgWebsocketProcessorService>();
 builder.Services.AddScoped<ITableGameManager, TableGameManager>();
 builder.Services.AddScoped<ITableState, TableState>();
