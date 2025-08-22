@@ -52,18 +52,22 @@ class TableState : ITableState, INotifyPropertyChanged
     if (seat == Seat.Bottom)
     {
       bottomSeat = false;
+      OnPropertyChanged(nameof(bottomSeat));
     }
     if (seat == Seat.Left)
     {
-      leftSeat = true;
+      leftSeat = false;
+      OnPropertyChanged(nameof(leftSeat));
     }
     if (seat == Seat.Top)
     {
-      topSeat = true;
+      topSeat = false;
+      OnPropertyChanged(nameof(topSeat));
     }
     if (seat == Seat.Right)
     {
-      rightSeat = true;
+      rightSeat = false;
+      OnPropertyChanged(nameof(rightSeat));
     }
   }
 }
