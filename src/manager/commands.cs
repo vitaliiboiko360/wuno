@@ -6,3 +6,18 @@ enum ManagerCommands
   Table,
   Game,
 }
+
+enum TableActionsIncoming
+{
+  None,
+  RequestSeat,
+  FreeSeat,
+}
+
+enum TableActionsOutcoming
+{
+  None,
+  GrantSeat,
+  FreeSeat,
+  TakeSeat,
+}
