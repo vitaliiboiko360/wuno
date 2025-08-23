@@ -1,6 +1,6 @@
 namespace SeatsFile;
 
-enum Seat
+public enum Seat
 {
   Unassigned,
   Bottom,
@@ -9,7 +9,7 @@ enum Seat
   Right,
 }
 
-enum Ordered
+public enum Ordered
 {
   Unassigned,
   A1,
