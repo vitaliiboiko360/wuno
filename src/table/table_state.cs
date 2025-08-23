@@ -3,7 +3,7 @@ using SeatsFile;
 
 namespace TableStateFile;
 
-interface ITableState
+public interface ITableState
 {
   public bool allocateSeat(Seat seat);
   public void freeSeat(Seat seat);
@@ -11,7 +11,7 @@ interface ITableState
   public event PropertyChangedEventHandler PropertyChanged;
 }
 
-class TableState : ITableState, INotifyPropertyChanged
+public class TableState : ITableState, INotifyPropertyChanged
 {
   bool topSeat = false;
   bool rightSeat = false;
