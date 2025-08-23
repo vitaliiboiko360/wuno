@@ -5,8 +5,10 @@ namespace TableStateFile;
 
 interface ITableState
 {
-  public void allocateSeat(Seat seat);
+  public bool allocateSeat(Seat seat);
   public void freeSeat(Seat seat);
+
+  public event PropertyChangedEventHandler PropertyChanged;
 }
 
 class TableState : ITableState, INotifyPropertyChanged
@@ -23,28 +25,33 @@ class TableState : ITableState, INotifyPropertyChanged
     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
   }
 
-  public void allocateSeat(Seat seat)
+  public bool allocateSeat(Seat seat)
   {
     if (seat == Seat.Bottom && !bottomSeat)
     {
       bottomSeat = true;
       OnPropertyChanged(nameof(bottomSeat));
+      return true;
     }
     if (seat == Seat.Left && !leftSeat)
     {
       leftSeat = true;
       OnPropertyChanged(nameof(leftSeat));
+      return true;
     }
     if (seat == Seat.Top && !topSeat)
     {
       topSeat = true;
       OnPropertyChanged(nameof(topSeat));
+      return true;
     }
     if (seat == Seat.Right && !rightSeat)
     {
       rightSeat = true;
       OnPropertyChanged(nameof(rightSeat));
+      return true;
     }
+    return false;
   }
 
   public void freeSeat(Seat seat)
