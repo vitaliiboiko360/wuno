@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net.WebSockets;
 using System.Text;
 using TableGameManagerFile;
@@ -12,7 +13,7 @@ internal interface IWebsocketProcessor
 
 public struct WsMessage
 {
-  WebSocket ws;
+  public WebSocket ws;
 
   public WsMessage(WebSocket associatedWsConnection)
   {
@@ -44,6 +45,8 @@ internal class WebsocketProcessor : IWebsocketProcessor
     _wsConnections = wsConnections;
     _tableGameManager = tableGameManager;
     _tableState = tableState;
+
+    tableState.PropertyChanged += OnTableStateChanged;
   }
 
   private void onMessageRecieve(
@@ -110,18 +113,36 @@ internal class WebsocketProcessor : IWebsocketProcessor
           task.ContinueWith((wsRes) => onMessageRecieve(wsRes, copyIndex));
           Console.WriteLine($"sending to {i}");
           var prev = Encoding.ASCII.GetBytes($"{i}_${stateCounter}");
-          var bufferToSend = new byte[8];
-          Random rand = new Random();
-          bufferToSend[0] = (byte)rand.NextInt64(255);
-          bufferToSend[1] = (byte)rand.NextInt64(255);
-          bufferToSend[2] = (byte)rand.NextInt64(255);
-          bufferToSend[3] = (byte)rand.NextInt64(255);
-          bufferToSend[4] = (byte)rand.NextInt64(255);
-          bufferToSend[5] = (byte)rand.NextInt64(255);
-          ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, stoppingToken);
+          if (false)
+          {
+            var bufferToSend = new byte[8];
+            Random rand = new Random();
+            bufferToSend[0] = (byte)rand.NextInt64(255);
+            bufferToSend[1] = (byte)rand.NextInt64(255);
+            bufferToSend[2] = (byte)rand.NextInt64(255);
+            bufferToSend[3] = (byte)rand.NextInt64(255);
+            bufferToSend[4] = (byte)rand.NextInt64(255);
+            bufferToSend[5] = (byte)rand.NextInt64(255);
+            ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, stoppingToken);
+          }
         }
       }
       await Task.Delay(5000, stoppingToken);
+    }
+  }
+
+  void OnTableStateChanged(object sender, PropertyChangedEventArgs e)
+  {
+    for (var i = 0; i < _wsConnections.Size(); ++i)
+    {
+      var ws = _wsConnections.GetConnections()[i];
+      if (ws.State == WebSocketState.Open)
+      {
+        var bufferToSend = new byte[8];
+        bufferToSend[0] = 1;
+        if (e.PropertyName == "topSeat") { }
+        ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
+      }
     }
   }
 }
