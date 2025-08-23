@@ -1,5 +1,6 @@
 using TableGameManagerFile;
 using TableStateFile;
+using WebsocketProcessorFile;
 using WorkServiceFile;
 using WsAppFile;
 
