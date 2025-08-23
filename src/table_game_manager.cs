@@ -16,7 +16,7 @@ public class TableGameManager : ITableGameManager
   ITableState _tableState;
   IWsConnections _wsConnections;
 
-  TableGameManager(ITableState tableState, IWsConnections wsConnections)
+  public TableGameManager(ITableState tableState, IWsConnections wsConnections)
   {
     _tableState = tableState;
     _wsConnections = wsConnections;
