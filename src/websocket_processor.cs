@@ -133,16 +133,17 @@ internal class WebsocketProcessor : IWebsocketProcessor
 
   void OnTableStateChanged(object sender, PropertyChangedEventArgs e)
   {
-    for (var i = 0; i < _wsConnections.Size(); ++i)
-    {
-      var ws = _wsConnections.GetConnections()[i];
-      if (ws.State == WebSocketState.Open)
-      {
-        var bufferToSend = new byte[8];
-        bufferToSend[0] = 1;
-        if (e.PropertyName == "topSeat") { }
-        ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
-      }
-    }
+    Console.WriteLine($"TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
+    // for (var i = 0; i < _wsConnections.Size(); ++i)
+    // {
+    //   var ws = _wsConnections.GetConnections()[i];
+    //   if (ws.State == WebSocketState.Open)
+    //   {
+    //     var bufferToSend = new byte[8];
+    //     bufferToSend[0] = 1;
+    //     if (e.PropertyName == "topSeat") { }
+    //     ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
+    //   }
+    // }
   }
 }
