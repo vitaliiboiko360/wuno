@@ -1,8 +1,13 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SeatsFile;
+using ManagerCommandsFile;
 
 namespace TableStateFile;
+
+public class TableStateConstant
+{
+  public const int allStateMessageSize = 16;
+}
 
 public interface ITableState
 {
@@ -10,14 +15,15 @@ public interface ITableState
   public void freeSeat(Seat seat);
 
   public event PropertyChangedEventHandler PropertyChanged;
+  public byte[] getAllTableState();
 }
 
 public class TableState : ITableState, INotifyPropertyChanged
 {
-  bool topSeat = false;
-  bool rightSeat = false;
   bool bottomSeat = false;
   bool leftSeat = false;
+  bool topSeat = false;
+  bool rightSeat = false;
 
   PlayerSeatInfo[] playerInfos = new PlayerSeatInfo[4];
 
@@ -84,6 +90,26 @@ public class TableState : ITableState, INotifyPropertyChanged
       OnPropertyChanged(nameof(rightSeat));
     }
   }
+
+  public byte[] getAllTableState()
+  {
+    var ret = new byte[TableStateConstant.allStateMessageSize];
+    ret[0] = (byte)ManagerCommands.Table;
+    ret[1] = (byte)TableActionsOutcoming.AllTableState;
+    ret[2] = (byte)Seat.Bottom;
+    ret[3] = playerInfos[0].colorIndex;
+    ret[4] = playerInfos[0].avatarIndex;
+    ret[5] = (byte)Seat.Left;
+    ret[6] = playerInfos[1].colorIndex;
+    ret[7] = playerInfos[1].avatarIndex;
+    ret[8] = (byte)Seat.Top;
+    ret[9] = playerInfos[2].colorIndex;
+    ret[10] = playerInfos[2].avatarIndex;
+    ret[11] = (byte)Seat.Right;
+    ret[12] = playerInfos[3].colorIndex;
+    ret[13] = playerInfos[3].avatarIndex;
+    return ret;
+  }
 }
 
 public struct PlayerSeatInfo
@@ -101,8 +127,8 @@ public struct PlayerSeatInfo
   public void assignRandomName()
   {
     isAssigned = true;
-    colorIndex = (byte)new Random().NextInt64(10);
-    avatarIndex = (byte)new Random().NextInt64(10);
+    colorIndex = (byte)((byte)new Random().NextInt64(9) + 1);
+    avatarIndex = (byte)((byte)new Random().NextInt64(9) + 1);
     displayName = displayName + new Random().NextInt64(10).ToString();
   }
 
