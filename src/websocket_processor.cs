@@ -31,6 +31,8 @@ internal class WebsocketProcessor : IWebsocketProcessor
   private IWsConnections _wsConnections;
   private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
+  private byte[] _allTableCachedMessage = new byte[TableStateConstant.allStateMessageSize];
+  private List<int> _cachedConnectionIds = new List<int>();
 
   private ITableState _tableState;
 
@@ -96,6 +98,7 @@ internal class WebsocketProcessor : IWebsocketProcessor
   {
     while (!stoppingToken.IsCancellationRequested)
     {
+      byte[] allTableState = _tableState.getAllTableState();
       stateCounter++;
       for (var i = 0; i < _wsConnections.Size(); ++i)
       {
@@ -111,10 +114,17 @@ internal class WebsocketProcessor : IWebsocketProcessor
           var task = ws.ReceiveAsync(_wsMessages[i].buffer, CancellationToken.None);
           int copyIndex = i;
           task.ContinueWith((wsRes) => onMessageRecieve(wsRes, copyIndex));
-          Console.WriteLine($"sending to {i}");
           var prev = Encoding.ASCII.GetBytes($"{i}_${stateCounter}");
+
+          if (_cachedConnectionIds.BinarySearch(i) < 0)
+          {
+            _cachedConnectionIds.Add(i);
+            ws.SendAsync(_allTableCachedMessage, WebSocketMessageType.Binary, true, stoppingToken);
+          }
+
           if (false)
           {
+            Console.WriteLine($"sending to {i}");
             var bufferToSend = new byte[8];
             Random rand = new Random();
             bufferToSend[0] = (byte)rand.NextInt64(255);
@@ -126,6 +136,11 @@ internal class WebsocketProcessor : IWebsocketProcessor
             ws.SendAsync(bufferToSend, WebSocketMessageType.Binary, true, stoppingToken);
           }
         }
+      }
+      if (!_allTableCachedMessage.SequenceEqual(allTableState))
+      {
+        _allTableCachedMessage = allTableState;
+        _cachedConnectionIds.Clear();
       }
       await Task.Delay(5000, stoppingToken);
     }
