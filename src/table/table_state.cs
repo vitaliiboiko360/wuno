@@ -16,6 +16,8 @@ public interface ITableState
 
   public event PropertyChangedEventHandler PropertyChanged;
   public byte[] getAllTableState();
+
+  public PlayerSeatInfo getPlayerSeatInfo(uint seat);
 }
 
 public class TableState : ITableState, INotifyPropertyChanged
@@ -109,6 +111,15 @@ public class TableState : ITableState, INotifyPropertyChanged
     ret[12] = playerInfos[3].colorIndex;
     ret[13] = playerInfos[3].avatarIndex;
     return ret;
+  }
+
+  public PlayerSeatInfo getPlayerSeatInfo(uint seat)
+  {
+    if (seat >= (uint)Seat.Bottom && seat <= (uint)Seat.Right)
+    {
+      return playerInfos[(int)seat-1];
+    }
+    return new PlayerSeatInfo();
   }
 }
 
