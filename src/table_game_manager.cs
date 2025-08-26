@@ -89,6 +89,7 @@ public class TableGameManager : ITableGameManager
     var arrayToSend = new byte[8];
     arrayToSend[0] = (byte)ManagerCommands.Table;
     arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
+    arrayToSend[2] = (byte)seat;
     webSocket.SendAsync(arrayToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
     Array.Clear(arrayToSend, 0, arrayToSend.Length);
     arrayToSend[0] = (byte)ManagerCommands.Table;
@@ -101,7 +102,7 @@ public class TableGameManager : ITableGameManager
       {
         continue;
       }
-      ws.SendAsync(arrayToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
+      ws.SendAsync(_tableState.getAllTableState(), WebSocketMessageType.Binary, true, CancellationToken.None);
     }
   }
 }
