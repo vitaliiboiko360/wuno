@@ -90,6 +90,9 @@ public class TableGameManager : ITableGameManager
     arrayToSend[0] = (byte)ManagerCommands.Table;
     arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
     arrayToSend[2] = (byte)seat;
+    var playerSeatInfo = _tableState.getPlayerSeatInfo(seat);
+    arrayToSend[3] = playerSeatInfo.colorIndex;
+    arrayToSend[4] = playerSeatInfo.avatarIndex;
     webSocket.SendAsync(arrayToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
     Array.Clear(arrayToSend, 0, arrayToSend.Length);
     arrayToSend[0] = (byte)ManagerCommands.Table;
