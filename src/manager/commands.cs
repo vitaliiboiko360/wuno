@@ -20,4 +20,14 @@ enum TableActionsOutcoming
   GrantSeat,
   FreeSeat,
   TakeSeat,
+  AllTableState,
+}
+
+public enum Seat
+{
+  Unassigned,
+  Bottom,
+  Left,
+  Top,
+  Right,
 }
