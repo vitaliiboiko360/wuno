@@ -1,14 +1,5 @@
 namespace SeatsFile;
 
-public enum Seat
-{
-  Unassigned,
-  Bottom,
-  Left,
-  Top,
-  Right,
-}
-
 public enum Ordered
 {
   Unassigned,
