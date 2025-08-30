@@ -39,11 +39,17 @@ app.MapGet("/", () => "Hello World!");
 app.Use(
   async (context, next) =>
   {
+    // Console.WriteLine($"Processing Request with URL {context.Request.Path}");
     if (context.Request.Path != "/ws")
     {
       await next(context);
       return;
     }
+    // string dictionaryString =
+    //   "{"
+    //   + String.Join(",", context.Request.Headers.Select(kv => $"\"{kv.Key}\":\"{kv.Value}\""))
+    //   + "}";
+    // Console.WriteLine($"Processing Request with URL {dictionaryString}");
     if (context.WebSockets.IsWebSocketRequest)
     {
       var tcs = new TaskCompletionSource<object>();
