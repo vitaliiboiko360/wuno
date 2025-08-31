@@ -117,7 +117,7 @@ public class TableState : ITableState, INotifyPropertyChanged
   {
     if (seat >= (uint)Seat.Bottom && seat <= (uint)Seat.Right)
     {
-      return playerInfos[(int)seat-1];
+      return playerInfos[(int)seat - 1];
     }
     return new PlayerSeatInfo();
   }
@@ -138,8 +138,8 @@ public struct PlayerSeatInfo
   public void assignRandomName()
   {
     isAssigned = true;
-    colorIndex = (byte)((byte)new Random().NextInt64(9) + 1);
-    avatarIndex = (byte)((byte)new Random().NextInt64(9) + 1);
+    colorIndex = (byte)((byte)new Random().NextInt64(8) + 1);
+    avatarIndex = (byte)((byte)new Random().NextInt64(8) + 1);
     displayName = displayName + new Random().NextInt64(10).ToString();
   }
 
