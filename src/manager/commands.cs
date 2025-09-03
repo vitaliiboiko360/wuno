@@ -12,6 +12,8 @@ enum TableActionsIncoming
   None,
   RequestSeat,
   FreeSeat,
+  GetNewClientGuid,
+  SetOldClientGuid,
 }
 
 enum TableActionsOutcoming
