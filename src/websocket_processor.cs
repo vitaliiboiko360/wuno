@@ -65,17 +65,19 @@ internal class WebsocketProcessor : IWebsocketProcessor
     }
     try
     {
-      if (wsResult.Result.MessageType == WebSocketMessageType.Close)
       {
-        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is CLOSED\n");
-      }
-      if (wsResult.Result.MessageType == WebSocketMessageType.Text)
-      {
-        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is TEXT\n");
-      }
-      if (wsResult.Result.MessageType == WebSocketMessageType.Binary)
-      {
-        Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is BINARY\n");
+        if (wsResult.Result.MessageType == WebSocketMessageType.Close)
+        {
+          Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is CLOSED\n");
+        }
+        if (wsResult.Result.MessageType == WebSocketMessageType.Text)
+        {
+          Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is TEXT\n");
+        }
+        if (wsResult.Result.MessageType == WebSocketMessageType.Binary)
+        {
+          Console.WriteLine($"For ws ID= {wsId} , MESSAGE TYPE is BINARY\n");
+        }
       }
       try
       {
