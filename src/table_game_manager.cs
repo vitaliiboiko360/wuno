@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.WebSockets;
 using ManagerCommandsFile;
 using SeatsFile;
@@ -42,6 +43,10 @@ public class TableGameManager : ITableGameManager
     if (cmdByte == (uint)ManagerCommands.Game)
     {
       ProcessGameMessage(wsMessage);
+    }
+    if (cmdByte == (uint)ManagerCommands.ClientID)
+    {
+      ProcessClientIDMessage(wsMessage);
     }
   }
 
@@ -105,7 +110,30 @@ public class TableGameManager : ITableGameManager
       {
         continue;
       }
-      ws.SendAsync(_tableState.getAllTableState(), WebSocketMessageType.Binary, true, CancellationToken.None);
+      ws.SendAsync(
+        _tableState.getAllTableState(),
+        WebSocketMessageType.Binary,
+        true,
+        CancellationToken.None
+      );
+    }
+  }
+
+  void ProcessClientIDMessage(WsMessage wsMessage)
+  {
+    uint actByte = wsMessage.buffer[1];
+    if (actByte == (uint)TableActionsIncoming.GetNewClientGuid)
+    {
+      Guid newGuid = Guid.NewGuid();
+      wsMessage.ws.SendAsync(newGuid.ToByteArray(), WebSocketMessageType.Binary, true, CancellationToken.None);
+    }
+    if (actByte == (uint)TableActionsIncoming.SetOldClientGuid)
+    {
+      const int guidLength = 16;
+      byte[] clientID = new byte[guidLength];
+      Array.Copy(wsMessage.buffer, 2, clientID, 0, guidLength);
+      Guid guid = new Guid(clientID);
+      Console.WriteLine($"Connection is already have ID {guid}");
     }
   }
 }
