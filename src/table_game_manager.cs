@@ -125,8 +125,11 @@ public class TableGameManager : ITableGameManager
     if (actByte == (uint)TableActionsIncoming.GetNewClientGuid)
     {
       Guid newGuid = Guid.NewGuid();
+      byte[] clientIDMessage = new byte[18];
+      clientIDMessage[0] = (byte)ManagerCommands.ClientID;
+      Array.Copy(newGuid.ToByteArray(), 0, clientIDMessage, 1, 16);
       wsMessage.ws.SendAsync(
-        newGuid.ToByteArray(),
+        clientIDMessage,
         WebSocketMessageType.Binary,
         true,
         CancellationToken.None
