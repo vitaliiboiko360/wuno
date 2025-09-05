@@ -125,7 +125,13 @@ public class TableGameManager : ITableGameManager
     if (actByte == (uint)TableActionsIncoming.GetNewClientGuid)
     {
       Guid newGuid = Guid.NewGuid();
-      wsMessage.ws.SendAsync(newGuid.ToByteArray(), WebSocketMessageType.Binary, true, CancellationToken.None);
+      wsMessage.ws.SendAsync(
+        newGuid.ToByteArray(),
+        WebSocketMessageType.Binary,
+        true,
+        CancellationToken.None
+      );
+      Console.WriteLine($"Just sent new client ID == {newGuid}");
     }
     if (actByte == (uint)TableActionsIncoming.SetOldClientGuid)
     {
@@ -133,7 +139,7 @@ public class TableGameManager : ITableGameManager
       byte[] clientID = new byte[guidLength];
       Array.Copy(wsMessage.buffer, 2, clientID, 0, guidLength);
       Guid guid = new Guid(clientID);
-      Console.WriteLine($"Connection is already have ID {guid}");
+      Console.WriteLine($"Connection is already have ID == {guid}");
     }
   }
 }
