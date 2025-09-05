@@ -5,6 +5,7 @@ enum ManagerCommands
   NotAssigned,
   Table,
   Game,
+  ClientID,
 }
 
 enum TableActionsIncoming
