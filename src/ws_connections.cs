@@ -35,7 +35,7 @@ public class WsConnections : IWsConnections
     return _activeWebSockets.Count;
   }
 
-  public Connections Connections { get; set; } = new Connections();
+  public Connections Connections { get; set; } = [];
 
   public List<WebSocket> GetConnections()
   {
