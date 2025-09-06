@@ -9,7 +9,7 @@ namespace TableGameManagerFile;
 
 public interface ITableGameManager
 {
-  public void ProcessMessage(WsMessage wsMessage);
+  public void ProcessConnection(IWsConnection wsConnection);
 }
 
 public class TableGameManager : ITableGameManager
@@ -23,71 +23,71 @@ public class TableGameManager : ITableGameManager
     _wsConnections = wsConnections;
   }
 
-  public void ProcessMessage(WsMessage wsMessage)
+  public void ProcessConnection(IWsConnection wsConnection)
   {
-    if (wsMessage.buffer[0] % 2 == 0)
+    if (wsConnection.MessageBuffer[0] % 2 == 0)
     {
-      Console.WriteLine($"WS Message Starts EVEN == ${wsMessage.buffer[0]}");
+      Console.WriteLine($"WS Message Starts EVEN == ${wsConnection.MessageBuffer[0]}");
     }
-    if (wsMessage.buffer[0] % 2 != 0)
+    if (wsConnection.MessageBuffer[0] % 2 != 0)
     {
-      Console.WriteLine($"WS Message Starts ODD == ${wsMessage.buffer[0]}");
+      Console.WriteLine($"WS Message Starts ODD == ${wsConnection.MessageBuffer[0]}");
     }
 
-    uint cmdByte = wsMessage.buffer[0];
+    uint cmdByte = wsConnection.MessageBuffer[0];
 
     if (cmdByte == (uint)ManagerCommands.Table)
     {
-      ProcessTableMessage(wsMessage);
+      ProcessTableMessage(wsConnection);
     }
     if (cmdByte == (uint)ManagerCommands.Game)
     {
-      ProcessGameMessage(wsMessage);
+      ProcessGameMessage(wsConnection);
     }
     if (cmdByte == (uint)ManagerCommands.ClientID)
     {
-      ProcessClientIDMessage(wsMessage);
+      ProcessClientIDMessage(wsConnection);
     }
   }
 
-  void ProcessTableMessage(WsMessage wsMessage)
+  void ProcessTableMessage(IWsConnection wsConnection)
   {
-    uint actByte = wsMessage.buffer[1];
+    uint actByte = wsConnection.MessageBuffer[1];
     if (actByte == (uint)TableActionsIncoming.RequestSeat)
     {
-      uint place = wsMessage.buffer[2];
+      uint place = wsConnection.MessageBuffer[2];
       if (place == (uint)Seat.Left)
       {
         if (_tableState.allocateSeat(Seat.Left))
         {
-          approveSeatRequest(wsMessage.ws, place);
+          approveSeatRequest(wsConnection.WebSocket, place);
         }
       }
       if (place == (uint)Seat.Right)
       {
         if (_tableState.allocateSeat(Seat.Right))
         {
-          approveSeatRequest(wsMessage.ws, place);
+          approveSeatRequest(wsConnection.WebSocket, place);
         }
       }
       if (place == (uint)Seat.Top)
       {
         if (_tableState.allocateSeat(Seat.Top))
         {
-          approveSeatRequest(wsMessage.ws, place);
+          approveSeatRequest(wsConnection.WebSocket, place);
         }
       }
       if (place == (uint)Seat.Bottom)
       {
         if (_tableState.allocateSeat(Seat.Bottom))
         {
-          approveSeatRequest(wsMessage.ws, place);
+          approveSeatRequest(wsConnection.WebSocket, place);
         }
       }
     }
   }
 
-  void ProcessGameMessage(WsMessage wsMessage) { }
+  void ProcessGameMessage(IWsConnection wsConnection) { }
 
   void approveSeatRequest(WebSocket webSocket, uint seat)
   {
@@ -119,16 +119,16 @@ public class TableGameManager : ITableGameManager
     }
   }
 
-  void ProcessClientIDMessage(WsMessage wsMessage)
+  void ProcessClientIDMessage(IWsConnection wsConnection)
   {
-    uint actByte = wsMessage.buffer[1];
+    uint actByte = wsConnection.MessageBuffer[1];
     if (actByte == (uint)TableActionsIncoming.GetNewClientGuid)
     {
       Guid newGuid = Guid.NewGuid();
       byte[] clientIDMessage = new byte[18];
       clientIDMessage[0] = (byte)ManagerCommands.ClientID;
       Array.Copy(newGuid.ToByteArray(), 0, clientIDMessage, 1, 16);
-      wsMessage.ws.SendAsync(
+      wsConnection.WebSocket.SendAsync(
         clientIDMessage,
         WebSocketMessageType.Binary,
         true,
@@ -140,7 +140,7 @@ public class TableGameManager : ITableGameManager
     {
       const int guidLength = 16;
       byte[] clientID = new byte[guidLength];
-      Array.Copy(wsMessage.buffer, 2, clientID, 0, guidLength);
+      Array.Copy(wsConnection.MessageBuffer, 2, clientID, 0, guidLength);
       Guid guid = new Guid(clientID);
       Console.WriteLine($"Connection is already have ID == {guid}");
     }
