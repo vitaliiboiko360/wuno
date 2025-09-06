@@ -45,3 +45,25 @@ public class WsConnections : IWsConnections
     _playersConnections.Add(wsPlayerConnection);
   }
 }
+
+public interface IWsConnection
+{
+  static uint MessageBufferLength = 32;
+  public WebSocket WebSocket { get; set; }
+  public byte[] MessageBuffer { get; set; }
+  public Guid Guid { get; set; }
+
+}
+
+public class WsConnection : IWsConnection
+{
+  public WsConnection(WebSocket webSocket)
+  {
+    WebSocket = webSocket;
+    MessageBuffer = new byte[IWsConnection.MessageBufferLength];
+  }
+
+  public WebSocket WebSocket { get; set; }
+  public byte[] MessageBuffer { get; set; }
+  public Guid Guid { get; set; }
+}
