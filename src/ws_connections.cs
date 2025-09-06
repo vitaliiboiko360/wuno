@@ -30,17 +30,12 @@ public class WsConnections : IWsConnections
     Connections.Add(new WsConnection(webSocket));
   }
 
-  public WsConnections()
-  {
-    Connections = new Connections();
-  }
-
   public int Size()
   {
     return _activeWebSockets.Count;
   }
 
-  public Connections Connections { get; set; }
+  public Connections Connections { get; set; } = new Connections();
 
   public List<WebSocket> GetConnections()
   {
