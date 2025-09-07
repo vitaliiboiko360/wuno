@@ -60,28 +60,28 @@ public class TableGameManager : ITableGameManager
       {
         if (_tableState.allocateSeat(Seat.Left))
         {
-          approveSeatRequest(wsConnection.WebSocket, place);
+          approveSeatRequest(wsConnection.WebSocket, place, wsConnection);
         }
       }
       if (place == (uint)Seat.Right)
       {
         if (_tableState.allocateSeat(Seat.Right))
         {
-          approveSeatRequest(wsConnection.WebSocket, place);
+          approveSeatRequest(wsConnection.WebSocket, place, wsConnection);
         }
       }
       if (place == (uint)Seat.Top)
       {
         if (_tableState.allocateSeat(Seat.Top))
         {
-          approveSeatRequest(wsConnection.WebSocket, place);
+          approveSeatRequest(wsConnection.WebSocket, place, wsConnection);
         }
       }
       if (place == (uint)Seat.Bottom)
       {
         if (_tableState.allocateSeat(Seat.Bottom))
         {
-          approveSeatRequest(wsConnection.WebSocket, place);
+          approveSeatRequest(wsConnection.WebSocket, place, wsConnection);
         }
       }
     }
@@ -89,20 +89,25 @@ public class TableGameManager : ITableGameManager
 
   void ProcessGameMessage(IWsConnection wsConnection) { }
 
-  void approveSeatRequest(WebSocket webSocket, uint seat)
+  void approveSeatRequest(WebSocket webSocket, uint seat, IWsConnection wsConnection)
   {
     var arrayToSend = new byte[8];
+
     arrayToSend[0] = (byte)ManagerCommands.Table;
     arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
     arrayToSend[2] = (byte)seat;
+
     var playerSeatInfo = _tableState.getPlayerSeatInfo(seat);
     arrayToSend[3] = playerSeatInfo.colorIndex;
     arrayToSend[4] = playerSeatInfo.avatarIndex;
+
     webSocket.SendAsync(arrayToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
+
     Array.Clear(arrayToSend, 0, arrayToSend.Length);
     arrayToSend[0] = (byte)ManagerCommands.Table;
     arrayToSend[1] = (byte)TableActionsOutcoming.TakeSeat;
     arrayToSend[2] = (byte)seat;
+
     for (var i = 0; i < _wsConnections.GetConnections().Count; i++)
     {
       var ws = _wsConnections.GetConnections()[i];
@@ -116,6 +121,24 @@ public class TableGameManager : ITableGameManager
         true,
         CancellationToken.None
       );
+    }
+
+    if (wsConnection.Guid != Guid.Empty)
+    {
+      _tableState.playerConnections.Add(wsConnection.Guid, (Seat)seat);
+    }
+  }
+
+  void sendPlayerSeatIfPlayer(IWsConnection wsConnection)
+  {
+    if (_tableState.playerConnections.ContainsKey(wsConnection.Guid))
+    {
+      var seat = _tableState.playerConnections[wsConnection.Guid];
+      byte[] arrayToSend = new byte[8];
+      arrayToSend[0] = (byte)ManagerCommands.Table;
+      arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
+      arrayToSend[2] = (byte)seat;
+      wsConnection.WebSocket.SendAsync(arrayToSend, WebSocketMessageType.Binary, true, CancellationToken.None);
     }
   }
 
