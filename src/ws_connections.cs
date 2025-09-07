@@ -60,7 +60,7 @@ public interface IWsConnection
   public WebSocket WebSocket { get; set; }
   public byte[] MessageBuffer { get; set; }
   public Guid Guid { get; set; }
-  public uint ID { get; set; }
+  public uint ID { get; }
 }
 
 public class WsConnection : IWsConnection
@@ -77,5 +77,5 @@ public class WsConnection : IWsConnection
   public WebSocket WebSocket { get; set; }
   public byte[] MessageBuffer { get; set; }
   public Guid Guid { get; set; }
-  public uint ID { get; set; }
+  public uint ID { get; }
 }
