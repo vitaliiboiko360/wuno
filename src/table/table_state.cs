@@ -4,6 +4,8 @@ using ManagerCommandsFile;
 
 namespace TableStateFile;
 
+using PlayerConnections = Dictionary<Guid, Seat>;
+
 public class TableStateConstant
 {
   public const int allStateMessageSize = 16;
@@ -18,6 +20,8 @@ public interface ITableState
   public byte[] getAllTableState();
 
   public PlayerSeatInfo getPlayerSeatInfo(uint seat);
+
+  public PlayerConnections playerConnections { get; }
 }
 
 public class TableState : ITableState, INotifyPropertyChanged
@@ -26,6 +30,8 @@ public class TableState : ITableState, INotifyPropertyChanged
   bool leftSeat = false;
   bool topSeat = false;
   bool rightSeat = false;
+
+  public PlayerConnections playerConnections { get; } = [];
 
   PlayerSeatInfo[] playerInfos = new PlayerSeatInfo[4];
 
