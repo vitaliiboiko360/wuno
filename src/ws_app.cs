@@ -20,7 +20,7 @@ class WsApp
   public async void Main(HttpContext context, TaskCompletionSource<object> tcs)
   {
     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-    Console.WriteLine("we have ready websocket");
+    Console.WriteLine("\n:::::\nwe have ready websocket");
 
     _wsConnections.AddSocket(webSocket, tcs);
 
