@@ -22,8 +22,6 @@ enum TableActionsOutcoming
   None,
   GrantSeat,
   FreeSeat,
-  GetNewClientGuid,
-  SetOldClientGuid,
   TakeSeat,
   AllTableState,
 }
