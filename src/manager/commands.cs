@@ -15,6 +15,7 @@ enum TableActionsIncoming
   FreeSeat,
   GetNewClientGuid,
   SetOldClientGuid,
+  CheckPlayerSeat,
 }
 
 enum TableActionsOutcoming
