@@ -31,6 +31,8 @@ internal class WebsocketProcessor : IWebsocketProcessor
   private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
 
+  private Dictionary<uint, CancellationTokenSource> _tasks = [];
+
   private ITableState _tableState;
 
   public WebsocketProcessor(
@@ -105,15 +107,18 @@ internal class WebsocketProcessor : IWebsocketProcessor
         var ws = _wsConnections.Connections[i];
         if (ws.WebSocket.State == WebSocketState.Open)
         {
-          // if (i >= _wsMessages.Count)
+          // CancellationTokenSource cts = new CancellationTokenSource();
+          // var isTaskExists = _tasks.TryGetValue(ws.ID, out cts!);
+          // if (isTaskExists)
           // {
-          //   Console.WriteLine($"adding message buffer for i= {i}");
-          //   _wsMessages.Add(new WsMessage(ws));
+          //   cts.Cancel();
+          //   _tasks.Remove(ws.ID);
+          //   cts = new CancellationTokenSource();
           // }
+          Task<WebSocketReceiveResult> task = ws.WebSocket.ReceiveAsync(ws.MessageBuffer, stoppingToken);
+          task.ContinueWith((wsRes) => onMessageRecieve(wsRes, ws), stoppingToken);
 
-          var task = ws.WebSocket.ReceiveAsync(ws.MessageBuffer, CancellationToken.None);
-          int copyIndex = i;
-          task.ContinueWith((wsRes) => onMessageRecieve(wsRes, ws));
+          // _tasks.Add(ws.ID, cts);
 
           ws.WebSocket.SendAsync(
             _tableState.getAllTableState(),
@@ -132,3 +137,4 @@ internal class WebsocketProcessor : IWebsocketProcessor
     Console.WriteLine($"TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
   }
 }
+
