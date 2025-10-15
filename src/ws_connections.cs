@@ -61,6 +61,7 @@ public interface IWsConnection
   public byte[] MessageBuffer { get; set; }
   public Guid Guid { get; set; }
   public uint ID { get; }
+  public bool IsPlayerSeatChecked { get; set; }
 }
 
 public class WsConnection : IWsConnection
@@ -78,4 +79,5 @@ public class WsConnection : IWsConnection
   public byte[] MessageBuffer { get; set; }
   public Guid Guid { get; set; }
   public uint ID { get; }
+  public bool IsPlayerSeatChecked { get; set; } = false;
 }
