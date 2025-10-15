@@ -31,7 +31,7 @@ internal class WebsocketProcessor : IWebsocketProcessor
   private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
 
-  private Dictionary<uint, CancellationTokenSource> _tasks = [];
+  private Dictionary<uint, Task> _tasks = [];
 
   private ITableState _tableState;
 
@@ -115,11 +115,44 @@ internal class WebsocketProcessor : IWebsocketProcessor
           //   _tasks.Remove(ws.ID);
           //   cts = new CancellationTokenSource();
           // }
-          Task<WebSocketReceiveResult> task = ws.WebSocket.ReceiveAsync(ws.MessageBuffer, stoppingToken);
-          task.ContinueWith((wsRes) => onMessageRecieve(wsRes, ws), stoppingToken);
+          // CancellationToken ct = new CancellationToken();
 
-          // _tasks.Add(ws.ID, cts);
+          if (_tasks.ContainsKey(ws.ID))
+          {
+            Task currentTasks = _tasks[ws.ID];
+            if (
+              currentTasks.Status != TaskStatus.Running
+              || currentTasks.Status != TaskStatus.RanToCompletion
+              || currentTasks.Status != TaskStatus.WaitingForChildrenToComplete
+            )
+            {
+              ws.WebSocket.SendAsync(
+                _tableState.getAllTableState(),
+                WebSocketMessageType.Binary,
+                true,
+                stoppingToken
+              );
+              continue;
+            }
+          }
 
+          Task<WebSocketReceiveResult> task = ws.WebSocket.ReceiveAsync(
+            ws.MessageBuffer,
+            stoppingToken
+          );
+          task.ContinueWith(
+            (wsRes) =>
+            {
+              onMessageRecieve(wsRes, ws);
+              _tasks.Remove(ws.ID);
+            },
+            stoppingToken
+          );
+
+          _tasks.Add(ws.ID, task);
+
+          if (!ws.IsPlayerSeatChecked)
+            continue;
           ws.WebSocket.SendAsync(
             _tableState.getAllTableState(),
             WebSocketMessageType.Binary,
@@ -137,4 +170,3 @@ internal class WebsocketProcessor : IWebsocketProcessor
     Console.WriteLine($"TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
   }
 }
-
