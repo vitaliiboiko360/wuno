@@ -136,24 +136,25 @@ public class TableGameManager : ITableGameManager
 
   void sendPlayerSeatInfoIfPlayer(IWsConnection wsConnection)
   {
+    byte[] arrayToSend = new byte[8];
+    var seat = Seat.Unassigned;
     if (_tableState.playerConnections.ContainsKey(wsConnection.Guid))
     {
-      var seat = _tableState.playerConnections[wsConnection.Guid];
-      byte[] arrayToSend = new byte[8];
-      arrayToSend[0] = (byte)ManagerCommands.Table;
-      arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
-      arrayToSend[2] = (byte)seat;
+      seat = _tableState.playerConnections[wsConnection.Guid];
       var playerSeatInfo = _tableState.getPlayerSeatInfo(seat);
       arrayToSend[3] = playerSeatInfo.colorIndex;
       arrayToSend[4] = playerSeatInfo.avatarIndex;
-      wsConnection.WebSocket.SendAsync(
-        arrayToSend,
-        WebSocketMessageType.Binary,
-        true,
-        CancellationToken.None
-      );
     }
-    wsConnection.IsPlayerSeatChecked = true;
+    arrayToSend[0] = (byte)ManagerCommands.Table;
+    arrayToSend[1] = (byte)TableActionsOutcoming.GrantSeat;
+    arrayToSend[2] = (byte)seat;
+
+    wsConnection.WebSocket.SendAsync(
+      arrayToSend,
+      WebSocketMessageType.Binary,
+      true,
+      CancellationToken.None
+    );
   }
 
   void ProcessClientIDMessage(IWsConnection wsConnection)
