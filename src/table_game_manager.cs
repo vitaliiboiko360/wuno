@@ -132,7 +132,6 @@ public class TableGameManager : ITableGameManager
     {
       _tableState.playerConnections.Add(wsConnection.Guid, (Seat)seat);
     }
-    wsConnection.IsPlayerSeatChecked = true;
   }
 
   void sendPlayerSeatInfoIfPlayer(IWsConnection wsConnection)

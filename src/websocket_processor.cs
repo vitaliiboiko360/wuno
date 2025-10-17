@@ -151,8 +151,6 @@ internal class WebsocketProcessor : IWebsocketProcessor
 
           _tasks.Add(ws.ID, task);
 
-          if (!ws.IsPlayerSeatChecked)
-            continue;
           ws.WebSocket.SendAsync(
             _tableState.getAllTableState(),
             WebSocketMessageType.Binary,
