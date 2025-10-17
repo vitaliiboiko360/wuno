@@ -27,11 +27,11 @@ public class TableGameManager : ITableGameManager
   {
     if (wsConnection.MessageBuffer[0] % 2 == 0)
     {
-      Console.WriteLine($"WS Message Starts EVEN == ${wsConnection.MessageBuffer[0]}");
+      // Console.WriteLine($"WS Message Starts EVEN == ${wsConnection.MessageBuffer[0]}");
     }
     if (wsConnection.MessageBuffer[0] % 2 != 0)
     {
-      Console.WriteLine($"WS Message Starts ODD == ${wsConnection.MessageBuffer[0]}");
+      // Console.WriteLine($"WS Message Starts ODD == ${wsConnection.MessageBuffer[0]}");
     }
 
     uint cmdByte = wsConnection.MessageBuffer[0];
