@@ -56,15 +56,19 @@ internal class WebsocketProcessor : IWebsocketProcessor
   )
   {
     uint wsId = wsConnection.ID;
-    Console.WriteLine($"onMessageRecieve for ID ==: {wsId}");
-    Console.WriteLine($"wsResult.IsCompleted ==: {wsResult.IsCompleted}");
-    Console.WriteLine($"wsResult.IsCanceled ==: {wsResult.IsCanceled}");
+    if (false)
+    {
+      Console.WriteLine($"onMessageRecieve for ID ==: {wsId}");
+      Console.WriteLine($"wsResult.IsCompleted ==: {wsResult.IsCompleted}");
+      Console.WriteLine($"wsResult.IsCanceled ==: {wsResult.IsCanceled}");
+    }
     if (wsResult.IsCanceled)
     {
       return;
     }
     try
     {
+      if (false)
       {
         if (wsResult.Result.MessageType == WebSocketMessageType.Close)
         {
@@ -82,7 +86,11 @@ internal class WebsocketProcessor : IWebsocketProcessor
       try
       {
         string msgRecived = Encoding.ASCII.GetString(wsConnection.MessageBuffer);
-        Console.WriteLine($"WS ID={wsId} recieved: {msgRecived}");
+
+        if (false)
+        {
+          Console.WriteLine($"WS ID={wsId} recieved: {msgRecived}");
+        }
       }
       catch (Exception e)
       {
@@ -107,15 +115,19 @@ internal class WebsocketProcessor : IWebsocketProcessor
         var ws = _wsConnections.Connections[i];
         if (ws.WebSocket.State == WebSocketState.Open)
         {
-          // CancellationTokenSource cts = new CancellationTokenSource();
-          // var isTaskExists = _tasks.TryGetValue(ws.ID, out cts!);
-          // if (isTaskExists)
-          // {
-          //   cts.Cancel();
-          //   _tasks.Remove(ws.ID);
-          //   cts = new CancellationTokenSource();
-          // }
-          // CancellationToken ct = new CancellationToken();
+          if (false)
+          {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Task tsk;
+            var isTaskExists = _tasks.TryGetValue(ws.ID, out tsk!);
+            if (isTaskExists)
+            {
+              cts.Cancel();
+              _tasks.Remove(ws.ID);
+              cts = new CancellationTokenSource();
+            }
+            CancellationToken ct = new CancellationToken();
+          }
 
           if (_tasks.ContainsKey(ws.ID))
           {
