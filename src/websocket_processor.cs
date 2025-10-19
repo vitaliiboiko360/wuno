@@ -30,7 +30,7 @@ internal class WebsocketProcessor : IWebsocketProcessor
   private IWsConnections _wsConnections;
   private ITableGameManager _tableGameManager;
   private List<WsMessage> _wsMessages = new List<WsMessage>();
-
+  HashSet<uint> _cachedConnections = [];
   private Dictionary<uint, Task> _tasks = [];
 
   private ITableState _tableState;
@@ -163,12 +163,17 @@ internal class WebsocketProcessor : IWebsocketProcessor
 
           _tasks.Add(ws.ID, task);
 
-          ws.WebSocket.SendAsync(
-            _tableState.getAllTableState(),
-            WebSocketMessageType.Binary,
-            true,
-            stoppingToken
-          );
+          if (_cachedConnections.Contains(ws.ID)) { }
+          else
+          {
+            ws.WebSocket.SendAsync(
+              _tableState.getAllTableState(),
+              WebSocketMessageType.Binary,
+              true,
+              stoppingToken
+            );
+            _cachedConnections.Add(ws.ID);
+          }
         }
       }
       await Task.Delay(5000, stoppingToken);
@@ -178,5 +183,7 @@ internal class WebsocketProcessor : IWebsocketProcessor
   void OnTableStateChanged(object sender, PropertyChangedEventArgs e)
   {
     Console.WriteLine($"TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
+    Console.WriteLine($"Resetting Cached Connections");
+    _cachedConnections.Clear();
   }
 }
