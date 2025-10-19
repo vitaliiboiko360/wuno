@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using ManagerCommandsFile;
 
 namespace TableStateFile;
@@ -9,20 +10,19 @@ using PlayerConnections = Dictionary<Guid, Seat>;
 public class TableStateConstant
 {
   public const int allStateMessageSize = 16;
+  public const int allPlayerNamesStateMessageSize = 64;
 }
 
 public interface ITableState
 {
   public bool allocateSeat(Seat seat);
   public void freeSeat(Seat seat);
-
   public event PropertyChangedEventHandler PropertyChanged;
   public byte[] getAllTableState();
-
   public PlayerSeatInfo getPlayerSeatInfo(Seat seat);
   public PlayerSeatInfo getPlayerSeatInfo(uint seat);
-
   public PlayerConnections playerConnections { get; }
+  public byte[] getAllPlayerNamesState();
 }
 
 public class TableState : ITableState, INotifyPropertyChanged
@@ -133,13 +133,20 @@ public class TableState : ITableState, INotifyPropertyChanged
     }
     return new PlayerSeatInfo();
   }
+
+  byte[] getAllPlayerNamesState()
+  {
+    var ret = new byte[TableStateConstant.allPlayerNamesStateMessageSize];
+    return ret;
+  }
 }
 
 public struct PlayerSeatInfo
 {
+  static RandomNames randomNames = new RandomNames();
   public byte colorIndex;
   public byte avatarIndex;
-  public String displayName;
+  public byte[] displayName;
   public bool isAssigned = false;
 
   public PlayerSeatInfo()
@@ -152,7 +159,7 @@ public struct PlayerSeatInfo
     isAssigned = true;
     colorIndex = (byte)((byte)new Random().NextInt64(8) + 1);
     avatarIndex = (byte)((byte)new Random().NextInt64(8) + 1);
-    displayName = displayName + new Random().NextInt64(10).ToString();
+    displayName = Encoding.ASCII.GetBytes(randomNames.getNextName());
   }
 
   public void clearInfo()
@@ -160,6 +167,6 @@ public struct PlayerSeatInfo
     isAssigned = false;
     colorIndex = 0;
     avatarIndex = 0;
-    displayName = "player";
+    displayName = "player"u8.ToArray();
   }
 }
