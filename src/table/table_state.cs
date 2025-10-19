@@ -31,11 +31,8 @@ public class TableState : ITableState, INotifyPropertyChanged
   bool leftSeat = false;
   bool topSeat = false;
   bool rightSeat = false;
-
   public PlayerConnections playerConnections { get; } = [];
-
   PlayerSeatInfo[] playerInfos = new PlayerSeatInfo[4];
-
   public event PropertyChangedEventHandler PropertyChanged;
 
   protected virtual void OnPropertyChanged(string propertyName)
