@@ -134,7 +134,7 @@ public class TableState : ITableState, INotifyPropertyChanged
     return new PlayerSeatInfo();
   }
 
-  byte[] getAllPlayerNamesState()
+  public byte[] getAllPlayerNamesState()
   {
     var ret = new byte[TableStateConstant.allPlayerNamesStateMessageSize];
     return ret;
