@@ -138,12 +138,16 @@ internal class WebsocketProcessor : IWebsocketProcessor
               || currentTasks.Status != TaskStatus.WaitingForChildrenToComplete
             )
             {
-              ws.WebSocket.SendAsync(
-                _tableState.getAllTableState(),
-                WebSocketMessageType.Binary,
-                true,
-                stoppingToken
-              );
+              if (!_cachedConnections.Contains(ws.ID))
+              {
+                ws.WebSocket.SendAsync(
+                  _tableState.getAllTableState(),
+                  WebSocketMessageType.Binary,
+                  true,
+                  stoppingToken
+                );
+                _cachedConnections.Add(ws.ID);
+              }
               continue;
             }
           }
@@ -163,8 +167,7 @@ internal class WebsocketProcessor : IWebsocketProcessor
 
           _tasks.Add(ws.ID, task);
 
-          if (_cachedConnections.Contains(ws.ID)) { }
-          else
+          if (!_cachedConnections.Contains(ws.ID))
           {
             ws.WebSocket.SendAsync(
               _tableState.getAllTableState(),
@@ -182,8 +185,8 @@ internal class WebsocketProcessor : IWebsocketProcessor
 
   void OnTableStateChanged(object sender, PropertyChangedEventArgs e)
   {
-    Console.WriteLine($"TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
     Console.WriteLine($"Resetting Cached Connections");
     _cachedConnections.Clear();
+    Console.WriteLine($"NEW TABLE STATE PROPERTY CHANGED +++ {e.PropertyName}");
   }
 }
