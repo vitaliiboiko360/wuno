@@ -16,6 +16,7 @@ enum TableActionsIncoming
   GetNewClientGuid,
   SetOldClientGuid,
   CheckPlayerSeat,
+  RequestInitTable = 6,
 }
 
 enum TableActionsOutcoming
@@ -25,6 +26,7 @@ enum TableActionsOutcoming
   FreeSeat,
   TakeSeat,
   AllTableState,
+  RequestInitTable = 6,
 }
 
 public enum Seat
