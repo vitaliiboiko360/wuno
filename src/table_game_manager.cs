@@ -90,6 +90,11 @@ public class TableGameManager : ITableGameManager
     {
       sendPlayerSeatInfoIfPlayer(wsConnection);
     }
+
+    if (actByte == (uint)TableActionsIncoming.RequestInitTable)
+    {
+      sendResponseRequestInitTable(wsConnection);
+    }
   }
 
   void ProcessGameMessage(IWsConnection wsConnection) { }
@@ -184,5 +189,28 @@ public class TableGameManager : ITableGameManager
       wsConnection.Guid = guid;
       Console.WriteLine($"Connection is already have ID == {guid}");
     }
+  }
+
+  void sendResponseRequestInitTable(IWsConnection wsConnection)
+  {
+    byte[] arrayToSend = new byte[8];
+    var seat = Seat.Unassigned;
+    if (_tableState.playerConnections.ContainsKey(wsConnection.Guid))
+    {
+      seat = _tableState.playerConnections[wsConnection.Guid];
+      var playerSeatInfo = _tableState.getPlayerSeatInfo(seat);
+      arrayToSend[3] = playerSeatInfo.colorIndex;
+      arrayToSend[4] = playerSeatInfo.avatarIndex;
+    }
+    arrayToSend[0] = (byte)ManagerCommands.Table;
+    arrayToSend[1] = (byte)TableActionsOutcoming.RequestInitTable;
+    arrayToSend[2] = (byte)seat;
+
+    wsConnection.WebSocket.SendAsync(
+      arrayToSend,
+      WebSocketMessageType.Binary,
+      true,
+      CancellationToken.None
+    );
   }
 }
