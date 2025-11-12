@@ -193,18 +193,19 @@ public class TableGameManager : ITableGameManager
 
   void sendResponseRequestInitTable(IWsConnection wsConnection)
   {
-    byte[] arrayToSend = new byte[8];
+    const int sendToLenght = 16;
+    byte[] arrayToSend = new byte[sendToLenght];
     var seat = Seat.Unassigned;
     if (_tableState.playerConnections.ContainsKey(wsConnection.Guid))
     {
       seat = _tableState.playerConnections[wsConnection.Guid];
-      var playerSeatInfo = _tableState.getPlayerSeatInfo(seat);
-      arrayToSend[3] = playerSeatInfo.colorIndex;
-      arrayToSend[4] = playerSeatInfo.avatarIndex;
     }
     arrayToSend[0] = (byte)ManagerCommands.Table;
     arrayToSend[1] = (byte)TableActionsOutcoming.RequestInitTable;
     arrayToSend[2] = (byte)seat;
+
+    byte[] allTableState = _tableState.getAllTableState();
+    Array.Copy(allTableState, 2, arrayToSend, 3, sendToLenght);
 
     wsConnection.WebSocket.SendAsync(
       arrayToSend,
