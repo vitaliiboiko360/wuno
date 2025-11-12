@@ -205,7 +205,8 @@ public class TableGameManager : ITableGameManager
     arrayToSend[2] = (byte)seat;
 
     byte[] allTableState = _tableState.getAllTableState();
-    Array.Copy(allTableState, 2, arrayToSend, 3, sendToLenght);
+    const int numberOfBytesToCopyAllTableState = 12;
+    Array.Copy(allTableState, 2, arrayToSend, 3, numberOfBytesToCopyAllTableState);
 
     wsConnection.WebSocket.SendAsync(
       arrayToSend,
